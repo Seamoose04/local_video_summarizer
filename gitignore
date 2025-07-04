@@ -1,0 +1,17 @@
+
+# Python
+__pycache__/
+*.py[cod]
+*.log
+*.sqlite3
+
+# Environments
+.env
+.env.*
+
+# Video & frame outputs
+*.mp4
+video/
+
+# VSCode
+.vscode/
