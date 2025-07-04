@@ -1,3 +1,4 @@
 python-dotenv
 requests
 opencv-python-headless
+yt-dlp
