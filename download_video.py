@@ -1,10 +1,9 @@
 import subprocess
 import argparse
 import cv2
-import csv
 from pathlib import Path
 import os
-from typing import List, Tuple
+import sys
 
 def main(url: str, fps: int):
     download_video(url)
@@ -12,15 +11,15 @@ def main(url: str, fps: int):
 
 def download_video(url: str, output_path: str = "video/video.mp4"):
     try:
-        result = subprocess.run([
-            "yt-dlp",
-            "--quiet",
-            "--no-warnings",
+        cmd = [
+            sys.executable, "-m", "yt_dlp",
+            "--quiet", "--no-warnings",
             "--merge-output-format", "mp4",
             "-f", "bestvideo[height<=720]+bestaudio/best[height<=720]",
             "-o", output_path,
             url
-        ], check=True)
+        ]
+        result = subprocess.run(cmd, check=True)
         print("Video download completed.")
     except subprocess.CalledProcessError as e:
         print(f"yt-dlp failed: {e}")
@@ -44,7 +43,7 @@ def extract_frames_with_timestamps(video_path: str, fps: int, output_dir: str = 
 
         if frame_idx % frame_interval == 0:
             timestamp = cap.get(cv2.CAP_PROP_POS_MSEC) / 1000.0  # in seconds
-            filename = os.path.join(output_dir, f"frame_{saved_idx:06d_}t{round(timestamp, 3):06.3f}.png")
+            filename = os.path.join(output_dir, f"frame_{saved_idx:06d}_t{round(timestamp, 3):06.3f}.png")
             cv2.imwrite(filename, frame)
             saved_idx += 1
 
