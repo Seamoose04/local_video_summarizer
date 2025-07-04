@@ -1,6 +1,6 @@
 # Local Video Summarizer
 
-This is a Python-based pipeline for generating AI-powered video summaries using both visual and audio input. It runs entirely offline, and stores intermediate data in Supabase for flexible querying and grouping as well as crash recovery.
+This is a Python-based pipeline for generating AI-powered video summaries using both visual and audio input. It runs entirely offline or with optional API support, and stores intermediate data in Supabase for flexible querying and grouping as well as crash recovery.
 
 ---
 
@@ -18,19 +18,24 @@ This is a Python-based pipeline for generating AI-powered video summaries using 
 
 ## Setup
 
-1. Clone the repo
+1. Clone the repo  
 2. Install dependencies:
-   ```bash
-   pip install -r requirements.txt
-   ```
+
+    ```bash
+    pip install -r requirements.txt
+    ```
+
 3. Copy `.env.example` to `.env` and add your Supabase credentials:
-   ```bash
-   cp .env.example .env
-   ```
+
+    ```bash
+    cp .env.example .env
+    ```
+
 4. Run the pipeline on a video:
-   ```bash
-   python main.py --url https://youtube.com/your_video
-   ```
+
+    ```bash
+    python main.py --url https://youtube.com/your_video
+    ```
 
 ---
 
@@ -51,13 +56,3 @@ See `.env.example` for reference.
 
 This project is licensed under the [Creative Commons Attribution 4.0 License](LICENSE).  
 You are free to use, modify, and share this project — just credit the original author.
-
----
-
-## Credits
-
-Created by [Your Name or Handle]  
-Model integrations include:
-- BLIP / LLaVA for image captions
-- Whisper for audio transcription
-- LLaMA/Phi-3/Mistral for summarization
