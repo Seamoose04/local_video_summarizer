@@ -10,7 +10,6 @@ __pycache__/
 .env.*
 
 # Video & frame outputs
-*.mp4
 video/
 
 # VSCode
