@@ -1,7 +1,7 @@
 @echo off
 setlocal EnableDelayedExpansion
 
-REM Define the path to your .env.local file
+REM Define the path to your .env file
 set "ENV_FILE=.env"
 
 REM Check if the .env file exists
@@ -23,8 +23,8 @@ for /f "usebackq tokens=1,* delims==" %%i in ("%ENV_FILE%") do (
 )
 
 :: Create superuser
-services\pocketbase\pocketbase.exe superuser upsert %PB_ADMIN_EMAIL% %PB_ADMIN_PASSWORD%
+pocketbase\pocketbase.exe superuser upsert %PB_ADMIN_EMAIL% %PB_ADMIN_PASSWORD%
 echo superuser created.
 
-services\pocketbase\pocketbase.exe migrate up
+pocketbase\pocketbase.exe migrate up
 echo setup complete!
