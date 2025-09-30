@@ -7,21 +7,23 @@ import sys
 import json
 from common_functions import update_json_stage, url_to_id
 
+VIDEO_PATH = "../video"
+
 def main(url: str, fps: int):
     id = url_to_id(url)
 
-    video_folder = Path(f"video/{id}")
+    video_folder = Path(f"{VIDEO_PATH}/{id}")
     video_folder.mkdir(parents=True, exist_ok=True)
 
-    create_json_details_file(url, fps, id, f"video/{id}/details.json")
+    create_json_details_file(url, fps, id, f"{VIDEO_PATH}/{id}/details.json")
 
-    download_video(url, f"video/{id}/video.mp4")
-    update_json_stage(f"video/{id}/details.json", "video_downloaded")
+    download_video(url, f"{VIDEO_PATH}/{id}/video.mp4")
+    update_json_stage(f"{VIDEO_PATH}/{id}/details.json", "video_downloaded")
 
-    extract_frames_with_timestamps(f"video/{id}/video.mp4", fps, f"video/{id}/frames")
-    update_json_stage(f"video/{id}/details.json", "frames_split")
+    extract_frames_with_timestamps(f"{VIDEO_PATH}/{id}/video.mp4", fps, f"{VIDEO_PATH}/{id}/frames")
+    update_json_stage(f"{VIDEO_PATH}/{id}/details.json", "frames_split")
 
-def create_json_details_file(url: str, fps: int, id: str, path: str = "video/details.json"):
+def create_json_details_file(url: str, fps: int, id: str, path: str = f"{VIDEO_PATH}/details.json"):
     details_data = {
         "id": id,
         "url": url,
@@ -32,7 +34,7 @@ def create_json_details_file(url: str, fps: int, id: str, path: str = "video/det
     with open(path, "w") as f:
         json.dump(details_data, f, indent=2)
 
-def download_video(url: str, output_path: str = "video/video.mp4"):
+def download_video(url: str, output_path: str = f"{VIDEO_PATH}/video.mp4"):
     try:
         cmd = [
             sys.executable, "-m", "yt_dlp",
@@ -47,7 +49,7 @@ def download_video(url: str, output_path: str = "video/video.mp4"):
     except subprocess.CalledProcessError as e:
         print(f"yt-dlp failed: {e}")
 
-def extract_frames_with_timestamps(video_path: str, fps: int, output_dir: str = "video/frames"):
+def extract_frames_with_timestamps(video_path: str, fps: int, output_dir: str = f"{VIDEO_PATH}/frames"):
     Path(output_dir).mkdir(parents=True, exist_ok=True)
     
     cap = cv2.VideoCapture(video_path)
