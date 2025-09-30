@@ -4,10 +4,33 @@ import cv2
 from pathlib import Path
 import os
 import sys
+import json
+from common_functions import update_json_stage, url_to_id
 
 def main(url: str, fps: int):
-    download_video(url)
-    extract_frames_with_timestamps("video/video.mp4", fps)
+    id = url_to_id(url)
+
+    video_folder = Path(f"video/{id}")
+    video_folder.mkdir(parents=True, exist_ok=True)
+
+    create_json_details_file(url, fps, id, f"video/{id}/details.json")
+
+    download_video(url, f"video/{id}/video.mp4")
+    update_json_stage(f"video/{id}/details.json", "video_downloaded")
+
+    extract_frames_with_timestamps(f"video/{id}/video.mp4", fps, f"video/{id}/frames")
+    update_json_stage(f"video/{id}/details.json", "frames_split")
+
+def create_json_details_file(url: str, fps: int, id: str, path: str = "video/details.json"):
+    details_data = {
+        "id": id,
+        "url": url,
+        "fps": fps,
+        "stage": "start"
+    }
+
+    with open(path, "w") as f:
+        json.dump(details_data, f, indent=2)
 
 def download_video(url: str, output_path: str = "video/video.mp4"):
     try:
