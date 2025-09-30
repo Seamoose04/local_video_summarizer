@@ -4,4 +4,3 @@ opencv-python-headless
 yt-dlp
 pillow
 dotenv
-supabase
