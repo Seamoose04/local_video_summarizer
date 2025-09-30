@@ -1,0 +1,6 @@
+# pocketbase files
+pocketbase
+pocketbase*
+pb_data/
+CHANGELOG.md
+LICENSE.md
