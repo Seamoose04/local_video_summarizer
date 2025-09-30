@@ -1,19 +1,12 @@
 import os
 import requests
-os.environ.pop("SSL_CERT_FILE", None)
-from supabase import create_client
 from dotenv import load_dotenv
 from common_functions import url_to_id, update_json_stage
 import argparse
 
 # Load environment variables from .env
 load_dotenv()
-SUPABASE_URL = os.getenv("SUPABASE_URL", "")
-SUPABASE_KEY = os.getenv("SUPABASE_KEY", "")
 MODEL_NAME = "nomic-embed-text"
-
-# Create Supabase client
-supabase = create_client(SUPABASE_URL, SUPABASE_KEY)
 
 def main(url: str, batch_size: int = 32):
     id = url_to_id(url)
