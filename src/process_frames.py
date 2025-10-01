@@ -5,10 +5,12 @@ from dotenv import load_dotenv
 from pathlib import Path
 import argparse
 from common_functions import update_stage
-from lmstudio_functions import summarize_image
+from frame_similarity import get_similarity
 from db_functions import DB
 
 VIDEO_PATH = "video"
+MOVE_THRESHOLD = 0.95
+SCENE_THRESHOLD = 0.8
 
 load_dotenv()
 
@@ -16,18 +18,28 @@ def main(id: str):
     folder = Path(f"{VIDEO_PATH}/{id}/frames")
     files = list(folder.glob("*.png"))
 
+    keyframes = [files[0]]
     for i, file in enumerate(files):
-        print(f"\rProcessing frame {i}/{len(files)}", end='', flush=True)
-        b64_image = encode_image_as_base64(file.as_posix())
-        description = summarize_image(b64_image)
-        timestamp = float(file.stem.split("t")[-1])
-        upload_frame_summary(id, timestamp, description)
+        print(f"\rProcessing frame: {i}/{len(files)} | Keyframes: {len(keyframes)}", end='', flush=True)
+        similarity = get_similarity(keyframes[-1].as_posix(), file.as_posix())
+        if similarity < SCENE_THRESHOLD:
+            keyframes.append(file)
+            timestamp = float(file.stem.split("t")[-1])
+            upload_scene_frame(id, timestamp)
+        elif similarity < MOVE_THRESHOLD:
+            keyframes.append(file)
+            timestamp = float(file.stem.split("t")[-1])
+            upload_move_frame(id, timestamp)
 
-    update_stage(id, "images_processed")
+    update_stage(id, "keyframes_extracted")
 
-def upload_frame_summary(video_id: str, timestamp: float, description: str):
+def upload_scene_frame(video_id: str, timestamp: float):
     db = DB(video_id)
-    db.upload_frame(timestamp, description)
+    db.add_keyframe(timestamp, "scene")
+
+def upload_move_frame(video_id: str, timestamp: float):
+    db = DB(video_id)
+    db.add_keyframe(timestamp, "move")
 
 def encode_image_as_base64(path: str) -> str:
     with Image.open(path) as img:

@@ -1,7 +1,10 @@
 import sqlite3
 import os
+from typing import Literal
 
 VIDEO_PATH = "video"
+
+FrameType = Literal['scene', 'move']
 
 class DB:
     def __init__(self, id: str):
@@ -17,10 +20,10 @@ CREATE TABLE IF NOT EXISTS stats (
 );
 
 CREATE TABLE IF NOT EXISTS frames (
-    frame INTEGER PRIMARY KEY AUTOINCREMENT,
+    keyframe INTEGER PRIMARY KEY AUTOINCREMENT,
     ts REAL,
-    description TEXT,
-    embedding_path TEXT
+    frame_type TEXT,
+    description TEXT
 );       
                 """)
                 conn.commit()
@@ -37,10 +40,26 @@ ON CONFLICT(stat) DO UPDATE SET
             """, (stat, state))
             conn.commit()
 
-    def upload_frame(self, ts: float, description: str):
+    def add_keyframe(self, ts: float, frame_type: FrameType):
         with sqlite3.connect(self.path) as conn:
             cur = conn.cursor()
             cur.execute("""
-INSERT INTO frames (ts, description, embedding_path)
-VALUES (?, ?, "")
-            """, (ts, description))
+INSERT INTO frames (ts, frame_type)
+VALUES (?, ?)
+            """, (ts, frame_type))
+            conn.commit()
+
+    def get_new_keyframe(self):
+        with sqlite3.connect(self.path) as conn:
+            cur = conn.cursor()
+            # fetch one frame without description
+            cur.execute("SELECT keyframe, ts, frame_type FROM frames WHERE description IS NULL LIMIT 1")
+            return cur.fetchone()
+
+    def update_keyframe_description(self, keyframe: int, description: str):
+        with sqlite3.connect(self.path) as conn:
+            cur = conn.cursor()
+            cur.execute("""
+UPDATE frames SET description=? WHERE keyframe=?
+            """, (description, keyframe))
+            conn.commit()

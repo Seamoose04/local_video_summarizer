@@ -2,6 +2,7 @@ from openai import OpenAI
 import os
 from dotenv import load_dotenv
 import argparse
+import re
 
 load_dotenv()
 
@@ -10,6 +11,11 @@ VISION_MODEL = os.getenv("VISION_MODEL", "")
 
 # Point to LM Studio instead of OpenAI’s servers
 client = OpenAI(base_url=f"{LMSTUDIO_BASE_URL}/v1", api_key="not-needed")
+
+def remove_think_tags(text):
+    pattern = r"\[THINK\].*?\[/THINK\]"
+    cleaned_text = re.sub(pattern, "", text, flags=re.DOTALL)
+    return cleaned_text
 
 def summarize_image(img: str):
     response = client.chat.completions.create(
@@ -22,7 +28,21 @@ def summarize_image(img: str):
         ],
         max_tokens=500
     )
-    return response.choices[0].message.content or ""
+    return remove_think_tags(response.choices[0].message.content) or ""
+
+def summarize_changes(img1: str, img2: str):
+    response = client.chat.completions.create(
+        model=VISION_MODEL,
+        messages=[
+            {"role": "user", "content": [
+                {"type": "text", "text": "Briefly describe the changes from the first image to the second, if there are any."},
+                {"type": "image_url", "image_url": {"url": img1}},
+                {"type": "image_url", "image_url": {"url": img2}}
+            ]}
+        ],
+        max_tokens=500
+    )
+    return remove_think_tags(response.choices[0].message.content) or ""
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser(description="Summarize image")
